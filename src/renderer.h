@@ -1,7 +1,7 @@
 #pragma once
 #include "foundation/basic.h"
 #include "foundation/math.h"
-#include "rasterizer.h"
+#include "gfx_api.h"
 #include "shaders.h"
 #include "mesh.h"
 

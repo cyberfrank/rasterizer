@@ -1,6 +1,6 @@
 #include "mesh.h"
 #include "foundation/allocator.h"
-#include "rasterizer.h"
+#include "gfx_api.h"
 
 #define MESH_FORMAT_VERSION (4)
 

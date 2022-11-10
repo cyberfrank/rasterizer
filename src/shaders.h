@@ -1,6 +1,6 @@
 #pragma once
 #include "foundation/math.h"
-#include "rasterizer.h"
+#include "gfx_api.h"
 
 typedef struct GlobalUniformBlock {
     mat44_t transform;
@@ -41,16 +41,11 @@ static vec4_t default_vertex_shader(const Vertex *in, Vertex *out, const Shader_
     return mat44_transform_vec4(&globals->view_projection, world_pos);
 }
 
-static inline float distance_attenuation(vec3_t unormalized_light_vec) {
+static inline float distance_attenuation(vec3_t unormalized_light_vec) 
+{
     float dist2 = vec3_dot(unormalized_light_vec, unormalized_light_vec);
     float att = 1.0f / c_max(dist2, 0.01f * 0.01f);
     return att;
-}
-
-static vec3_t simple_texture(const Vertex *in, const Shader_Bindings *bindings)
-{
-    const Texture *albedo = bindings->textures[0];
-    return sample_texture(albedo, in->uv);
 }
 
 static vec3_t default_pixel_shader(const Vertex *in, const Shader_Bindings *bindings)
