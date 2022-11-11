@@ -1,5 +1,5 @@
 # rasterizer
-A remake of a software rasterizer from 2019. Main difference is that this one uses a tile-based technique (single tile) instead of scanlines. 
+A remake of a software rasterizer from 2018. Main difference is that this one uses a tile-based technique (single tile) instead of scanlines. 
 It outputs directly to a Win32 framebuffer. No optimizations have been done!
 
 ## Features
