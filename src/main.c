@@ -1,5 +1,6 @@
 #pragma once
 #include "foundation/basic.h"
+#include "foundation/allocator.h"
 #include "renderer.h"
 
 #define WIN32_LEAN_AND_MEAN
@@ -60,22 +61,21 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
     return lResult;
 }
 
-static uint64_t os_time_now()
+static Time_Stamp os_time_now()
 {
-    uint64_t now;
-    LARGE_INTEGER qpc;
-    QueryPerformanceCounter(&qpc);
-    now = (uint64_t)qpc.QuadPart;
-    return now;
+    LARGE_INTEGER pc;
+    QueryPerformanceCounter(&pc);
+    Time_Stamp result;
+    result.opaque = pc.QuadPart;
+    return result;
 }
 
-static double os_time_delta(uint64_t to, uint64_t from)
+static double os_time_delta(Time_Stamp to, Time_Stamp from)
 {
-    double result = 0.0;
+    int64_t delta = to.opaque - from.opaque;
     LARGE_INTEGER freq;
     QueryPerformanceFrequency(&freq);
-    result = (to - from) * (1.0 / freq.QuadPart);
-    return result;
+    return (double)delta / (double)freq.QuadPart;
 }
 
 int main(int argc, char **argv)
@@ -119,10 +119,10 @@ int main(int argc, char **argv)
     app->running = true;
     float t = 0.0f;
 
-    uint64_t global_clock = os_time_now();
+    Time_Stamp global_clock = os_time_now();
 
     while (app->running) {
-        uint64_t frame_start = os_time_now();
+        Time_Stamp frame_start = os_time_now();
         float dt = (float)os_time_delta(frame_start, global_clock);
         global_clock = frame_start;
 
@@ -150,7 +150,7 @@ int main(int argc, char **argv)
 
     gfx_api->shutdown();
 
-    extern int64_t allocated_bytes;
+    int64_t allocated_bytes = total_bytes_allocated();
     printf("Leaked bytes: %zi (%.2fKB)\n", allocated_bytes, allocated_bytes / 1000.f);
 
     ReleaseDC(hwnd, dc);

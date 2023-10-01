@@ -14,7 +14,7 @@ typedef struct Renderer {
     gfx_id light_buffer;
 } Renderer;
 
-static void projection_from_fov(mat44_t *m, float near, float far, float vertical_fov, float aspect)
+static void projection_from_fov(Mat44 *m, float near, float far, float vertical_fov, float aspect)
 {
     const float range = near - far;
     const float tan_half_fov = tanf(vertical_fov / 2.f);
@@ -59,7 +59,7 @@ static void renderer_init(Renderer *r, int w, int h)
     r->light_buffer = gfx_api->create_buffer(&lights, sizeof(lights));
     gfx_api->bind_uniform_block(1, r->light_buffer);
 
-    mat44_t projection, view, transform;
+    Mat44 projection, view, transform;
     projection_from_fov(&projection, 0.1f, 1000.0f, 50.f * DEG_TO_RAD, (float)w / (float)h);
 
     GlobalUniformBlock globals;
@@ -75,7 +75,7 @@ static void renderer_init(Renderer *r, int w, int h)
 static void renderer_draw_scene(Renderer *r, float t)
 {
     // Update model transform
-    mat44_t tm;
+    Mat44 tm;
     mat44_from_translation_rotation_scale(&tm,
         make_vec3(0, -0.25f, -0.5f),
         euler_to_quaternion(make_vec3(0, -t + PI, 0)),

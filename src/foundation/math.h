@@ -1,106 +1,129 @@
 #pragma once
-#include "foundation/basic.h"
-
+#include "basic.h"
 #include <emmintrin.h>
 #include <immintrin.h>
 #include <math.h>
 #include <string.h>
 
 #define PI 3.14159265f
+#define PI_D 3.14159265358979323846
+#define TAU 6.28318530f
+#define TAU_D 6.28318530717958647692
 #define DEG_TO_RAD (PI / 180.f)
+#define RAD_TO_DEG (180.f / PI)
 
-static inline vec2_t vec2_add(vec2_t lhs, vec2_t rhs)
+static inline float math_lerp(float s, float e, float t)
 {
-    const vec2_t res = {
+    return s * (1.f - t) + e * t;
+}
+
+static inline bool math_equal_abs_eps(float a, float b, float eps)
+{
+    return a - eps < b && b < a + eps;
+}
+
+static inline uint32_t math_uint32_div_ceil(uint32_t v, uint32_t d)
+{
+    return v / d + (v % d ? 1 : 0);
+}
+
+static inline Vec2 vec2_add(Vec2 lhs, Vec2 rhs)
+{
+    const Vec2 res = {
         lhs.x + rhs.x,
         lhs.y + rhs.y,
     };
     return res;
 }
 
-static inline vec2_t vec2_sub(vec2_t lhs, vec2_t rhs)
+static inline Vec2 vec2_sub(Vec2 lhs, Vec2 rhs)
 {
-    const vec2_t res = {
+    const Vec2 res = {
         lhs.x - rhs.x,
         lhs.y - rhs.y,
     };
     return res;
 }
 
-static inline float vec2_dot(vec2_t lhs, vec2_t rhs)
+static inline float vec2_dot(Vec2 lhs, Vec2 rhs)
 {
     return lhs.x * rhs.x + lhs.y * rhs.y;
 }
 
-static inline float vec2_cross(vec2_t lhs, vec2_t rhs)
+static inline float vec2_cross(Vec2 lhs, Vec2 rhs)
 {
     return lhs.x * rhs.y - lhs.y * rhs.x;
 }
 
-static inline vec2_t vec2_mul(vec2_t lhs, float rhs)
+static inline Vec2 vec2_mul(Vec2 lhs, float rhs)
 {
-    const vec2_t res = {
+    const Vec2 res = {
         lhs.x * rhs,
         lhs.y * rhs,
     };
     return res;
 }
 
-static inline vec2_t vec2_mul_add(vec2_t lhs, vec2_t rhs, float mul)
+static inline Vec2 vec2_mul_add(Vec2 lhs, Vec2 rhs, float mul)
 {
-    const vec2_t res = {
+    const Vec2 res = {
         lhs.x + rhs.x * mul,
         lhs.y + rhs.y * mul,
     };
     return res;
 }
 
-static inline vec2_t vec2_element_mul(vec2_t lhs, vec2_t rhs)
+static inline Vec2 vec2_element_mul(Vec2 lhs, Vec2 rhs)
 {
-    const vec2_t res = {
+    const Vec2 res = {
         lhs.x * rhs.x,
         lhs.y * rhs.y,
     };
     return res;
 }
 
-static inline vec2_t vec2_element_div(vec2_t lhs, vec2_t rhs)
+static inline Vec2 vec2_element_div(Vec2 lhs, Vec2 rhs)
 {
-    const vec2_t res = {
+    const Vec2 res = {
         lhs.x / rhs.x,
         lhs.y / rhs.y,
     };
     return res;
 }
 
-static inline float vec2_length(vec2_t v)
+static inline float vec2_length(Vec2 v)
 {
     return sqrtf(vec2_dot(v, v));
 }
 
-static inline vec2_t vec2_normalize(vec2_t v)
+static inline Vec2 vec2_normalize(Vec2 v)
 {
     const float len = vec2_length(v);
     if (len < 0.00001f) {
-        vec2_t res = { 0 };
+        Vec2 res = { 0 };
         return res;
     }
     const float inv_len = 1.0f / len;
-    const vec2_t res = {
+    const Vec2 res = {
         v.x * inv_len,
         v.y * inv_len,
     };
     return res;
 }
 
-static inline bool vec2_equal(vec2_t lhs, vec2_t rhs)
+static inline bool vec2_equal(Vec2 lhs, Vec2 rhs)
 {
     return lhs.x == rhs.x && lhs.y == rhs.y;
 }
 
-static inline vec3_t vec3_add(vec3_t lhs, vec3_t rhs)
+static inline Vec2 vec2_lerp(Vec2 a, Vec2 b, float t)
 {
-    const vec3_t res = {
+    return vec2_mul_add(vec2_mul(a, 1 - t), b, t);
+}
+
+static inline Vec3 vec3_add(Vec3 lhs, Vec3 rhs)
+{
+    const Vec3 res = {
         lhs.x + rhs.x,
         lhs.y + rhs.y,
         lhs.z + rhs.z,
@@ -108,9 +131,9 @@ static inline vec3_t vec3_add(vec3_t lhs, vec3_t rhs)
     return res;
 }
 
-static inline vec3_t vec3_sub(vec3_t lhs, vec3_t rhs)
+static inline Vec3 vec3_sub(Vec3 lhs, Vec3 rhs)
 {
-    const vec3_t res = {
+    const Vec3 res = {
         lhs.x - rhs.x,
         lhs.y - rhs.y,
         lhs.z - rhs.z,
@@ -118,14 +141,14 @@ static inline vec3_t vec3_sub(vec3_t lhs, vec3_t rhs)
     return res;
 }
 
-static inline float vec3_dot(vec3_t lhs, vec3_t rhs)
+static inline float vec3_dot(Vec3 lhs, Vec3 rhs)
 {
     return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
 }
 
-static inline vec3_t vec3_cross(vec3_t lhs, vec3_t rhs)
+static inline Vec3 vec3_cross(Vec3 lhs, Vec3 rhs)
 {
-    const vec3_t res = {
+    const Vec3 res = {
         lhs.y * rhs.z - lhs.z * rhs.y,
         lhs.z * rhs.x - lhs.x * rhs.z,
         lhs.x * rhs.y - lhs.y * rhs.x,
@@ -133,9 +156,9 @@ static inline vec3_t vec3_cross(vec3_t lhs, vec3_t rhs)
     return res;
 }
 
-static inline vec3_t vec3_mul(vec3_t lhs, float rhs)
+static inline Vec3 vec3_mul(Vec3 lhs, float rhs)
 {
-    const vec3_t res = {
+    const Vec3 res = {
         lhs.x * rhs,
         lhs.y * rhs,
         lhs.z * rhs,
@@ -143,9 +166,9 @@ static inline vec3_t vec3_mul(vec3_t lhs, float rhs)
     return res;
 }
 
-static inline vec3_t vec3_mul_add(vec3_t lhs, vec3_t rhs, float mul)
+static inline Vec3 vec3_mul_add(Vec3 lhs, Vec3 rhs, float mul)
 {
-    const vec3_t res = {
+    const Vec3 res = {
         lhs.x + rhs.x * mul,
         lhs.y + rhs.y * mul,
         lhs.z + rhs.z * mul,
@@ -153,9 +176,9 @@ static inline vec3_t vec3_mul_add(vec3_t lhs, vec3_t rhs, float mul)
     return res;
 }
 
-static inline vec3_t vec3_element_mul(vec3_t lhs, vec3_t rhs)
+static inline Vec3 vec3_element_mul(Vec3 lhs, Vec3 rhs)
 {
-    const vec3_t res = {
+    const Vec3 res = {
         lhs.x * rhs.x,
         lhs.y * rhs.y,
         lhs.z * rhs.z,
@@ -163,9 +186,9 @@ static inline vec3_t vec3_element_mul(vec3_t lhs, vec3_t rhs)
     return res;
 }
 
-static inline vec3_t vec3_element_div(vec3_t lhs, vec3_t rhs)
+static inline Vec3 vec3_element_div(Vec3 lhs, Vec3 rhs)
 {
-    const vec3_t res = {
+    const Vec3 res = {
         lhs.x / rhs.x,
         lhs.y / rhs.y,
         lhs.z / rhs.z,
@@ -173,20 +196,20 @@ static inline vec3_t vec3_element_div(vec3_t lhs, vec3_t rhs)
     return res;
 }
 
-static inline float vec3_length(vec3_t v)
+static inline float vec3_length(Vec3 v)
 {
     return sqrtf(vec3_dot(v, v));
 }
 
-static inline vec3_t vec3_normalize(vec3_t v)
+static inline Vec3 vec3_normalize(Vec3 v)
 {
     const float len = vec3_length(v);
     if (len < 0.00001f) {
-        vec3_t res = { 0 };
+        Vec3 res = { 0 };
         return res;
     }
     const float inv_len = 1.0f / len;
-    const vec3_t res = {
+    const Vec3 res = {
         v.x * inv_len,
         v.y * inv_len,
         v.z * inv_len,
@@ -194,14 +217,35 @@ static inline vec3_t vec3_normalize(vec3_t v)
     return res;
 }
 
-static inline bool vec3_equal(vec3_t lhs, vec3_t rhs)
+static inline void vec3_orthonormal_basis(Vec3 n, Vec3 *b1, Vec3 *b2)
+{
+    // https://graphics.pixar.com/library/OrthonormalB/paper.pdf
+    if (n.z < 0) {
+        const float a = 1.0f / (1.0f - n.z);
+        const float b = n.x * n.y * a;
+        *b1 = (Vec3) { 1.0f - n.x * n.x * a, -b, n.x };
+        *b2 = (Vec3) { b, n.y * n.y * a - 1.0f, -n.y };
+    } else {
+        const float a = 1.0f / (1.0f + n.z);
+        const float b = -n.x * n.y * a;
+        *b1 = (Vec3) { 1.0f - n.x * n.x * a, b, -n.x };
+        *b2 = (Vec3) { b, 1.0f - n.y * n.y * a, -n.y };
+    }
+}
+
+static inline bool vec3_equal(Vec3 lhs, Vec3 rhs)
 {
     return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
 }
 
-static inline vec4_t vec4_add(vec4_t lhs, vec4_t rhs)
+static inline Vec3 vec3_lerp(Vec3 a, Vec3 b, float t)
 {
-    const vec4_t res = {
+    return vec3_mul_add(vec3_mul(a, 1 - t), b, t);
+}
+
+static inline Vec4 vec4_add(Vec4 lhs, Vec4 rhs)
+{
+    const Vec4 res = {
         lhs.x + rhs.x,
         lhs.y + rhs.y,
         lhs.z + rhs.z,
@@ -210,9 +254,9 @@ static inline vec4_t vec4_add(vec4_t lhs, vec4_t rhs)
     return res;
 }
 
-static inline vec4_t vec4_sub(vec4_t lhs, vec4_t rhs)
+static inline Vec4 vec4_sub(Vec4 lhs, Vec4 rhs)
 {
-    const vec4_t res = {
+    const Vec4 res = {
         lhs.x - rhs.x,
         lhs.y - rhs.y,
         lhs.z - rhs.z,
@@ -221,14 +265,14 @@ static inline vec4_t vec4_sub(vec4_t lhs, vec4_t rhs)
     return res;
 }
 
-static inline float vec4_dot(vec4_t lhs, vec4_t rhs)
+static inline float vec4_dot(Vec4 lhs, Vec4 rhs)
 {
     return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z + lhs.w * rhs.w;
 }
 
-static inline vec4_t vec4_mul(vec4_t lhs, float rhs)
+static inline Vec4 vec4_mul(Vec4 lhs, float rhs)
 {
-    const vec4_t res = {
+    const Vec4 res = {
         lhs.x * rhs,
         lhs.y * rhs,
         lhs.z * rhs,
@@ -237,9 +281,9 @@ static inline vec4_t vec4_mul(vec4_t lhs, float rhs)
     return res;
 }
 
-static inline vec4_t vec4_mul_add(vec4_t lhs, vec4_t rhs, float mul)
+static inline Vec4 vec4_mul_add(Vec4 lhs, Vec4 rhs, float mul)
 {
-    const vec4_t res = {
+    const Vec4 res = {
         lhs.x + rhs.x * mul,
         lhs.y + rhs.y * mul,
         lhs.z + rhs.z * mul,
@@ -248,9 +292,9 @@ static inline vec4_t vec4_mul_add(vec4_t lhs, vec4_t rhs, float mul)
     return res;
 }
 
-static inline vec4_t vec4_element_mul(vec4_t lhs, vec4_t rhs)
+static inline Vec4 vec4_element_mul(Vec4 lhs, Vec4 rhs)
 {
-    const vec4_t res = {
+    const Vec4 res = {
         lhs.x * rhs.x,
         lhs.y * rhs.y,
         lhs.z * rhs.z,
@@ -259,9 +303,9 @@ static inline vec4_t vec4_element_mul(vec4_t lhs, vec4_t rhs)
     return res;
 }
 
-static inline vec4_t vec4_element_div(vec4_t lhs, vec4_t rhs)
+static inline Vec4 vec4_element_div(Vec4 lhs, Vec4 rhs)
 {
-    const vec4_t res = {
+    const Vec4 res = {
         lhs.x / rhs.x,
         lhs.y / rhs.y,
         lhs.z / rhs.z,
@@ -270,20 +314,20 @@ static inline vec4_t vec4_element_div(vec4_t lhs, vec4_t rhs)
     return res;
 }
 
-static inline float vec4_length(vec4_t v)
+static inline float vec4_length(Vec4 v)
 {
     return sqrtf(vec4_dot(v, v));
 }
 
-static inline vec4_t vec4_normalize(vec4_t v)
+static inline Vec4 vec4_normalize(Vec4 v)
 {
     const float len = vec4_length(v);
     if (len < 0.00001f) {
-        vec4_t res = { 0 };
+        Vec4 res = { 0 };
         return res;
     }
     const float inv_len = 1.0f / len;
-    const vec4_t res = {
+    const Vec4 res = {
         v.x * inv_len,
         v.y * inv_len,
         v.z * inv_len,
@@ -292,17 +336,17 @@ static inline vec4_t vec4_normalize(vec4_t v)
     return res;
 }
 
-static inline bool vec4_equal(vec4_t lhs, vec4_t rhs)
+static inline bool vec4_equal(Vec4 lhs, Vec4 rhs)
 {
     return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z && lhs.w == rhs.w;
 }
 
-static inline vec4_t quaternion_from_rotation(vec3_t axis, float angle)
+static inline Vec4 quaternion_from_rotation(Vec3 axis, float angle)
 {
     const float half_angle = angle * 0.5f;
     const float cosha = cosf(half_angle);
     const float sinha = sinf(half_angle);
-    const vec4_t res = {
+    const Vec4 res = {
         axis.x * sinha,
         axis.y * sinha,
         axis.z * sinha,
@@ -311,17 +355,17 @@ static inline vec4_t quaternion_from_rotation(vec3_t axis, float angle)
     return res;
 }
 
-static inline vec3_t quaternion_to_rotation(vec4_t q, float *angle)
+static inline Vec3 quaternion_to_rotation(Vec4 q, float *angle)
 {
-    const vec3_t v = { q.x, q.y, q.z };
+    const Vec3 v = { q.x, q.y, q.z };
     const float s = vec3_length(v);
     *angle = 2.0f * atan2f(s, q.w);
     return s ? vec3_mul(v, 1.0f / s) : make_vec3(1, 0, 0);
 }
 
-static inline vec4_t quaternion_mul(vec4_t lhs, vec4_t rhs)
+static inline Vec4 quaternion_mul(Vec4 lhs, Vec4 rhs)
 {
-    const vec4_t res = {
+    const Vec4 res = {
         lhs.w * rhs.x + lhs.x * rhs.w + lhs.y * rhs.z - lhs.z * rhs.y,
         lhs.w * rhs.y + lhs.y * rhs.w + lhs.z * rhs.x - lhs.x * rhs.z,
         lhs.w * rhs.z + lhs.z * rhs.w + lhs.x * rhs.y - lhs.y * rhs.x,
@@ -330,9 +374,9 @@ static inline vec4_t quaternion_mul(vec4_t lhs, vec4_t rhs)
     return res;
 }
 
-static inline vec4_t quaternion_inverse(vec4_t q)
+static inline Vec4 quaternion_inverse(Vec4 q)
 {
-    const vec4_t res = {
+    const Vec4 res = {
         -q.x,
         -q.y,
         -q.z,
@@ -341,12 +385,12 @@ static inline vec4_t quaternion_inverse(vec4_t q)
     return res;
 }
 
-static inline vec3_t quaternion_rotate_vec3(vec4_t q, vec3_t v)
+static inline Vec3 quaternion_rotate_vec3(Vec4 q, Vec3 v)
 {
-    const vec4_t v4 = { v.x, v.y, v.z };
-    const vec4_t q_inv = quaternion_inverse(q);
-    const vec4_t v4_rot = quaternion_mul(q, quaternion_mul(v4, q_inv));
-    const vec3_t res = {
+    const Vec4 v4 = { v.x, v.y, v.z };
+    const Vec4 q_inv = quaternion_inverse(q);
+    const Vec4 v4_rot = quaternion_mul(q, quaternion_mul(v4, q_inv));
+    const Vec3 res = {
         v4_rot.x,
         v4_rot.y,
         v4_rot.z,
@@ -354,7 +398,7 @@ static inline vec3_t quaternion_rotate_vec3(vec4_t q, vec3_t v)
     return res;
 }
 
-static inline vec3_t quaternion_to_euler(vec4_t q)
+static inline Vec3 quaternion_to_euler(Vec4 q)
 {
     const float sinr = 2 * (q.w * q.x + q.y * q.z);
     const float cosr = 1 - 2 * (q.x * q.x + q.y * q.y);
@@ -366,7 +410,7 @@ static inline vec3_t quaternion_to_euler(vec4_t q)
     const float siny = 2 * (q.w * q.z + q.x * q.y);
     const float cosy = 1 - 2 * (q.y * q.y + q.z * q.z);
     const float yaw = atan2f(siny, cosy);
-    const vec3_t res = {
+    const Vec3 res = {
         roll,
         pitch,
         yaw,
@@ -374,7 +418,7 @@ static inline vec3_t quaternion_to_euler(vec4_t q)
     return res;
 }
 
-static inline vec4_t euler_to_quaternion(vec3_t xyz)
+static inline Vec4 euler_to_quaternion(Vec3 xyz)
 {
     const float roll = xyz.x;
     const float pitch = xyz.y;
@@ -387,7 +431,7 @@ static inline vec4_t euler_to_quaternion(vec3_t xyz)
     const float cp = cosf(pitch * 0.5f);
     const float sp = sinf(pitch * 0.5f);
 
-    const vec4_t res = {
+    const Vec4 res = {
         cy * sr * cp - sy * cr * sp,
         cy * cr * sp + sy * sr * cp,
         sy * cr * cp - cy * sr * sp,
@@ -396,11 +440,10 @@ static inline vec4_t euler_to_quaternion(vec3_t xyz)
     return res;
 }
 
-static inline void quaternion_to_xyz(vec3_t *x, vec3_t *y, vec3_t *z, vec4_t q)
+static inline void quaternion_to_xyz(Vec3 *x, Vec3 *y, Vec3 *z, Vec4 q)
 {
     const float d = vec4_dot(q, q);
     const float s = (d != 0.f) ? 2.f / d : 1.f;
-
     const float xs = q.x * s;
     const float ys = q.y * s;
     const float zs = q.z * s;
@@ -413,29 +456,32 @@ static inline void quaternion_to_xyz(vec3_t *x, vec3_t *y, vec3_t *z, vec4_t q)
     const float yy = q.y * ys;
     const float yz = q.y * zs;
     const float zz = q.z * zs;
-
     if (x) {
         x->x = 1.f - yy - zz;
         x->y = xy + wz;
         x->z = xz - wy;
     }
-
     if (y) {
         y->x = xy - wz;
         y->y = 1.f - xx - zz;
         y->z = yz + wx;
     }
-
     if (z) {
         z->x = xz + wy;
         z->y = yz - wx;
         z->z = 1.f - xx - yy;
     }
 }
-
-static inline const mat44_t *mat44_identity()
+static inline Vec4 quaternion_nlerp(Vec4 a, Vec4 b, float t)
 {
-    static mat44_t identity = { 
+    const float dot = vec4_dot(a, b);
+    const Vec4 q = vec4_mul_add(vec4_mul(a, 1 - t), b, dot >= 0 ? t : -t);
+    return vec4_normalize(q);
+}
+
+static inline const Mat44 *mat44_identity()
+{
+    static Mat44 identity = { 
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
@@ -444,7 +490,7 @@ static inline const mat44_t *mat44_identity()
     return &identity;
 }
 
-static inline void mat44_from_translation(mat44_t *res, vec3_t t)
+static inline void mat44_from_translation(Mat44 *res, Vec3 t)
 {
     memset(res, 0, sizeof(*res));
     res->xx = 1.0f;
@@ -456,7 +502,7 @@ static inline void mat44_from_translation(mat44_t *res, vec3_t t)
     res->wz = t.z;
 }
 
-static inline void mat44_from_quaternion(mat44_t *res, vec4_t q)
+static inline void mat44_from_quaternion(Mat44 *res, Vec4 q)
 {
     const float d = vec4_dot(q, q);
     const float s = (d != 0.f) ? 2.f / d : 1.f;
@@ -495,7 +541,7 @@ static inline void mat44_from_quaternion(mat44_t *res, vec4_t q)
     res->ww = 1.f;
 }
 
-static inline void mat44_from_scale(mat44_t *res, vec3_t s)
+static inline void mat44_from_scale(Mat44 *res, Vec3 s)
 {
     *res = *mat44_identity();
     res->xx = s.x;
@@ -503,7 +549,44 @@ static inline void mat44_from_scale(mat44_t *res, vec3_t s)
     res->zz = s.z;
 }
 
-static inline void mat44_from_translation_rotation_scale(mat44_t *res, vec3_t t, vec4_t r, vec3_t s)
+static inline void xyz_from_quaternion(Vec3 *x, Vec3 *y, Vec3 *z, Vec4 q)
+{
+    const float d = vec4_dot(q, q);
+    const float s = (d != 0.0f) ? 2.f / d : 1.f;
+
+    const float xs = q.x * s;
+    const float ys = q.y * s;
+    const float zs = q.z * s;
+    const float wx = q.w * xs;
+    const float wy = q.w * ys;
+    const float wz = q.w * zs;
+    const float xx = q.x * xs;
+    const float xy = q.x * ys;
+    const float xz = q.x * zs;
+    const float yy = q.y * ys;
+    const float yz = q.y * zs;
+    const float zz = q.z * zs;
+
+    if (x) {
+        x->x = 1.f - yy - zz;
+        x->y = xy + wz;
+        x->z = xz - wy;
+    }
+
+    if (y) {
+        y->x = xy - wz;
+        y->y = 1.f - xx - zz;
+        y->z = yz + wx;
+    }
+
+    if (z) {
+        z->x = xz + wy;
+        z->y = yz - wx;
+        z->z = 1.f - xx - yy;
+    }
+}
+
+static inline void mat44_from_translation_rotation_scale(Mat44 *res, Vec3 t, Vec4 r, Vec3 s)
 {
     mat44_from_quaternion(res, r);
     res->xx *= s.x;
@@ -520,7 +603,12 @@ static inline void mat44_from_translation_rotation_scale(mat44_t *res, vec3_t t,
     res->wz = t.z;
 }
 
-static inline void mat44_mul(mat44_t *res, const mat44_t *lhs, const mat44_t *rhs)
+static inline void mat44_from_transform(Mat44 *res, const Transform *tm)
+{
+    mat44_from_translation_rotation_scale(res, tm->pos, tm->rot, tm->scl);
+}
+
+static inline void mat44_mul(Mat44 *res, const Mat44 *lhs, const Mat44 *rhs)
 {
     __m128 vx = _mm_loadu_ps(&rhs->xx);
     __m128 vy = _mm_loadu_ps(&rhs->yx);
@@ -580,7 +668,7 @@ static inline void mat44_mul(mat44_t *res, const mat44_t *lhs, const mat44_t *rh
     _mm_storeu_ps(&res->wx, sx);
 }
 
-static inline void mat44_inverse(mat44_t *res44, const mat44_t *m44)
+static inline void mat44_inverse(Mat44 *res44, const Mat44 *m44)
 {
     // https://github.com/niswegmann/small-matrix-inverse/blob/master/invert4x4_sse.h
     // Creative Common
@@ -703,18 +791,27 @@ static inline void mat44_inverse(mat44_t *res44, const mat44_t *m44)
     _mm_storeh_pi((__m64 *)(res + 14), minor3);
 }
 
-static inline vec3_t mat44_transform(const mat44_t *m, vec3_t v)
+static inline Vec3 mat44_transform(const Mat44 *m, Vec3 v)
 {
-    vec3_t res;
+    Vec3 res;
     res.x = m->xx * v.x + m->yx * v.y + m->zx * v.z + m->wx;
     res.y = m->xy * v.x + m->yy * v.y + m->zy * v.z + m->wy;
     res.z = m->xz * v.x + m->yz * v.y + m->zz * v.z + m->wz;
     return res;
 }
 
-static inline vec4_t mat44_transform_vec4(const mat44_t *m, vec4_t v)
+static inline Vec3 mat44_transform_no_translation(const Mat44 *m, Vec3 v)
 {
-    vec4_t res;
+    Vec3 res;
+    res.x = m->xx * v.x + m->yx * v.y + m->zx * v.z;
+    res.y = m->xy * v.x + m->yy * v.y + m->zy * v.z;
+    res.z = m->xz * v.x + m->yz * v.y + m->zz * v.z;
+    return res;
+}
+
+static inline Vec4 mat44_transform_vec4(const Mat44 *m, Vec4 v)
+{
+    Vec4 res;
     res.x = m->xx * v.x + m->yx * v.y + m->zx * v.z + v.w * m->wx;
     res.y = m->xy * v.x + m->yy * v.y + m->zy * v.z + v.w * m->wy;
     res.z = m->xz * v.x + m->yz * v.y + m->zz * v.z + v.w * m->wz;
@@ -722,7 +819,7 @@ static inline vec4_t mat44_transform_vec4(const mat44_t *m, vec4_t v)
     return res;
 }
 
-static inline float mat44_determinant(const mat44_t *m)
+static inline float mat44_determinant(const Mat44 *m)
 {
     float det = 0;
     det += m->xw * m->yz * m->zy * m->wx - m->xz * m->yw * m->zy * m->wx - m->xw * m->yy * m->zz * m->wx + m->xy * m->yw * m->zz * m->wx;
@@ -734,7 +831,7 @@ static inline float mat44_determinant(const mat44_t *m)
     return det;
 }
 
-static inline float mat44_determinant33(const mat44_t *m)
+static inline float mat44_determinant33(const Mat44 *m)
 {
     const float mxx = m->xx, mxy = m->xy, mxz = m->xz;
     const float myx = m->yx, myy = m->yy, myz = m->yz;
@@ -747,12 +844,93 @@ static inline float mat44_determinant33(const mat44_t *m)
     return det;
 }
 
-static inline vec3_t *mat44_x(mat44_t *m) { return (vec3_t *)&m->xx; };
-static inline vec3_t *mat44_y(mat44_t *m) { return (vec3_t *)&m->yx; };
-static inline vec3_t *mat44_z(mat44_t *m) { return (vec3_t *)&m->zx; };
-static inline vec3_t *mat44_w(mat44_t *m) { return (vec3_t *)&m->wx; };
+static inline Vec4 mat44_to_quaternion(const Mat44 *m)
+{
+    // reference code from https://d3cw3dd2w32x2b.cloudfront.net/wp-content/uploads/2015/01/matrix-to-quat.pdf
+    // Converting a Rotation Matrix to a Quaternion, Mike Day @ Insomniac
+    const float m00 = m->xx, m10 = m->yx, m20 = m->zx;
+    const float m01 = m->xy, m11 = m->yy, m21 = m->zy;
+    const float m02 = m->xz, m12 = m->yz, m22 = m->zz;
 
-static inline vec4_t *mat44_x_vec4(mat44_t *m) { return (vec4_t *)&m->xx; };
-static inline vec4_t *mat44_y_vec4(mat44_t *m) { return (vec4_t *)&m->yx; };
-static inline vec4_t *mat44_z_vec4(mat44_t *m) { return (vec4_t *)&m->zx; };
-static inline vec4_t *mat44_w_vec4(mat44_t *m) { return (vec4_t *)&m->wx; };
+    float t;
+    Vec4 res;
+    if (m22 < 0.f) {
+        if (m00 > m11) {
+            t = 1.f + m00 - m11 - m22;
+            res.x = t;
+            res.y = m01 + m10;
+            res.z = m20 + m02;
+            res.w = m12 - m21;
+        } else {
+            t = 1.f - m00 + m11 - m22;
+            res.x = m01 + m10;
+            res.y = t;
+            res.z = m12 + m21;
+            res.w = m20 - m02;
+        }
+    } else {
+        if (m00 < -m11) {
+            t = 1.f - m00 - m11 + m22;
+            res.x = m20 + m02;
+            res.y = m12 + m21;
+            res.z = t;
+            res.w = m01 - m10;
+        } else {
+            t = 1.f + m00 + m11 + m22;
+            res.x = m12 - m21;
+            res.y = m20 - m02;
+            res.z = m01 - m10;
+            res.w = t;
+        }
+    }
+
+    float s = 0.5f / sqrtf(t);
+    res.x *= s;
+    res.y *= s;
+    res.z *= s;
+    res.w *= s;
+
+    return res;
+}
+
+static inline void mat44_to_translation_rotation_scale(Vec3 *t, Vec4 *r, Vec3 *s, const Mat44 *m)
+{
+    memcpy(t, &m->wx, sizeof(*t));
+
+    s->x = sqrtf(m->xx * m->xx + m->xy * m->xy + m->xz * m->xz);
+    s->y = sqrtf(m->yx * m->yx + m->yy * m->yy + m->yz * m->yz);
+    s->z = sqrtf(m->zx * m->zx + m->zy * m->zy + m->zz * m->zz);
+
+    Mat44 tmp;
+    memcpy(&tmp, m, sizeof(tmp));
+    tmp.xx *= 1.f / s->x, tmp.xy *= 1.f / s->x, tmp.xz *= 1.f / s->x;
+    tmp.yx *= 1.f / s->y, tmp.yy *= 1.f / s->y, tmp.yz *= 1.f / s->y;
+    tmp.zx *= 1.f / s->z, tmp.zy *= 1.f / s->z, tmp.zz *= 1.f / s->z;
+
+    bool is_mirrored = mat44_determinant33(&tmp) < 0.0f;
+    if (!is_mirrored) {
+        *r = mat44_to_quaternion(&tmp);
+    } else {
+        s->x = -s->x;
+        s->y = -s->y;
+        s->z = -s->z;
+
+        Mat44 mirror = {
+            -tmp.xx, -tmp.xy, -tmp.xz, tmp.xw,
+            -tmp.yx, -tmp.yy, -tmp.yz, tmp.yw,
+            -tmp.zx, -tmp.zy, -tmp.zz, tmp.zw,
+            +tmp.wx, +tmp.wy, +tmp.wz, tmp.ww
+        };
+        *r = mat44_to_quaternion(&mirror);
+    }
+}
+
+static inline Vec3 *mat44_x(Mat44 *m) { return (Vec3 *)&m->xx; };
+static inline Vec3 *mat44_y(Mat44 *m) { return (Vec3 *)&m->yx; };
+static inline Vec3 *mat44_z(Mat44 *m) { return (Vec3 *)&m->zx; };
+static inline Vec3 *mat44_w(Mat44 *m) { return (Vec3 *)&m->wx; };
+
+static inline Vec4 *mat44_x_vec4(Mat44 *m) { return (Vec4 *)&m->xx; };
+static inline Vec4 *mat44_y_vec4(Mat44 *m) { return (Vec4 *)&m->yx; };
+static inline Vec4 *mat44_z_vec4(Mat44 *m) { return (Vec4 *)&m->zx; };
+static inline Vec4 *mat44_w_vec4(Mat44 *m) { return (Vec4 *)&m->wx; };

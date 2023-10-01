@@ -2,16 +2,17 @@
 #include "foundation/array.h"
 #include "foundation/math.h"
 #include "mesh.h"
-#include <float.h> // FLT_MAX
+#include <float.h>
+#include <limits.h>
 
 typedef struct Projected_Vertex {
-    vec2_t screen_pos;
+    Vec2 screen_pos;
     float depth;
     float inv_w;
-    vec3_t position;
-    vec2_t uv;
-    vec3_t normal;
-    vec3_t tangent;
+    Vec3 position;
+    Vec2 uv;
+    Vec3 normal;
+    Vec3 tangent;
     float _pad;
 } Projected_Vertex;
 
@@ -22,7 +23,7 @@ struct Graphics_Context {
     float *depth_buf;
     Vertex_Shader vertex_shader;
     Pixel_Shader pixel_shader;
-    mat44_t viewport_transform;
+    Mat44 viewport_transform;
     // Raw data
     Allocator *allocator;
     Buffer *buffers;
@@ -53,7 +54,7 @@ static void init(int width, int height)
 
     float ww = (float)width * 0.5f;
     float hh = (float)height * 0.5f;
-    ctx->viewport_transform = (mat44_t) {
+    ctx->viewport_transform = (Mat44) {
         ww, 0, 0, 0,
         0, -hh, 0, 0,
         0, 0, 1, 0,
@@ -137,39 +138,39 @@ static void update_buffer(gfx_id id, const void *data, uint64_t size, uint64_t o
         memcpy((uint8_t *)buf->data + offset, data, size);
 }
 
-static vec3_t calc_barycentric_coords(int x, int y, const vec2_t *p)
+static Vec3 calc_barycentric_coords(int x, int y, const Vec2 *p)
 {
-    const vec3_t a = (vec3_t) {
+    const Vec3 a = (Vec3) {
         .x = p[2].x - p[0].x,
         .y = p[1].x - p[0].x,
         .z = p[0].x - x,
     };
-    const vec3_t b = (vec3_t) {
+    const Vec3 b = (Vec3) {
         .x = p[2].y - p[0].y,
         .y = p[1].y - p[0].y,
         .z = p[0].y - y,
     };
-    const vec3_t u = vec3_cross(a, b);
+    const Vec3 u = vec3_cross(a, b);
     const float s = 1.0f / u.z;
-    return (vec3_t) {
+    return (Vec3) {
         s * (u.z - (u.x + u.y)),
         s * u.y,
         s * u.x,
     };
 }
 
-static inline void vec3_interpolate_3(vec3_t *out, const vec3_t p0, const vec3_t p1, const vec3_t p2, vec3_t uvw)
+static inline void vec3_interpolate_3(Vec3 *out, const Vec3 p0, const Vec3 p1, const Vec3 p2, Vec3 uvw)
 {
-    *out = (vec3_t) {
+    *out = (Vec3) {
         .x = p0.x * uvw.x + p1.x * uvw.y + p2.x * uvw.z,
         .y = p0.y * uvw.x + p1.y * uvw.y + p2.y * uvw.z,
         .z = p0.z * uvw.x + p1.z * uvw.y + p2.z * uvw.z,
     };
 }
 
-static inline void vec2_interpolate_3(vec2_t *out, vec2_t p0, vec2_t p1, vec2_t p2, vec3_t uvw)
+static inline void vec2_interpolate_3(Vec2 *out, Vec2 p0, Vec2 p1, Vec2 p2, Vec3 uvw)
 {
-    *out = (vec2_t) {
+    *out = (Vec2) {
         .x = p0.x * uvw.x + p1.x * uvw.y + p2.x * uvw.z,
         .y = p0.y * uvw.x + p1.y * uvw.y + p2.y * uvw.z,
     };
@@ -187,7 +188,7 @@ static void rasterize_triangle(
         INT_MIN, INT_MIN,
     };
 
-    const vec2_t points[3] = {
+    const Vec2 points[3] = {
         v0.screen_pos, v1.screen_pos, v2.screen_pos,
     };
     for (int i = 0; i < 3; ++i) {
@@ -202,7 +203,7 @@ static void rasterize_triangle(
 
     for (int x = bb.x0; x <= bb.x1; ++x) {
         for (int y = bb.y0; y <= bb.y1; ++y) {
-            vec3_t uvw = calc_barycentric_coords(x, y, points);
+            Vec3 uvw = calc_barycentric_coords(x, y, points);
             if (uvw.x < 0 || uvw.y < 0 || uvw.z < 0)
                 continue;
 
@@ -228,7 +229,7 @@ static void rasterize_triangle(
                 vec3_interpolate_3(&v.tangent, v0.tangent, v1.tangent, v2.tangent, uvw);
 
                 // Calculate final output color
-                vec3_t out_color = ctx->pixel_shader(&v, bindings);
+                Vec3 out_color = ctx->pixel_shader(&v, bindings);
                 uint8_t r = (uint8_t)c_min(out_color.x * 255, 255);
                 uint8_t g = (uint8_t)c_min(out_color.y * 255, 255);
                 uint8_t b = (uint8_t)c_min(out_color.z * 255, 255);
@@ -247,15 +248,15 @@ static void process_vertices(Projected_Vertex **output,
     for (uint32_t i = 0; i < num_vertices; ++i) {
         Vertex vs_out;
 
-        vec4_t clip_pos = ctx->vertex_shader(&vertices[i], &vs_out, bindings);
+        Vec4 clip_pos = ctx->vertex_shader(&vertices[i], &vs_out, bindings);
         float inv_w = 1.f / clip_pos.w;
          // Perspective divide
         clip_pos = vec4_mul(clip_pos, inv_w);
         // Viewport to screen space
-        vec4_t screen_pos = mat44_transform_vec4(&ctx->viewport_transform, clip_pos);
+        Vec4 screen_pos = mat44_transform_vec4(&ctx->viewport_transform, clip_pos);
 
         Projected_Vertex v = {
-            .screen_pos = (vec2_t) { screen_pos.x, screen_pos.y },
+            .screen_pos = (Vec2) { screen_pos.x, screen_pos.y },
             .inv_w = inv_w,
             .depth = clip_pos.z,
             // Copy vertex attributes

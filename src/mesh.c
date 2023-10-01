@@ -1,6 +1,7 @@
 #include "mesh.h"
 #include "foundation/allocator.h"
 #include "gfx_api.h"
+#include <stdio.h>
 
 #define MESH_FORMAT_VERSION (4)
 

@@ -12,10 +12,10 @@ typedef struct Texture {
 } Texture;
 
 typedef struct Vertex {
-    vec3_t position;
-    vec2_t uv;
-    vec3_t normal;
-    vec3_t tangent;
+    Vec3 position;
+    Vec2 uv;
+    Vec3 normal;
+    Vec3 tangent;
 } Vertex;
 
 typedef struct Buffer {
@@ -28,8 +28,8 @@ typedef struct Shader_Bindings {
     const Texture **textures;
 } Shader_Bindings;
 
-typedef vec4_t (*Vertex_Shader)(const Vertex *in, Vertex *out, const Shader_Bindings *bindings);
-typedef vec3_t (*Pixel_Shader)(const Vertex *in, const Shader_Bindings *bindings);
+typedef Vec4 (*Vertex_Shader)(const Vertex *in, Vertex *out, const Shader_Bindings *bindings);
+typedef Vec3 (*Pixel_Shader)(const Vertex *in, const Shader_Bindings *bindings);
 
 struct gfx_api {
     void (*init)(int width, int height);
