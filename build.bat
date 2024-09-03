@@ -18,7 +18,7 @@ goto exit
 
 :build
 echo Starting %target% mode build...
-premake5 vs2019 --verbose
+premake5 vs2022 --verbose
 msbuild bin/workspace.sln -p:Configuration=%target% -p:Platform=Win64 -p:GenerateFullPaths=true -t:build -v:normal -maxcpucount:8 -nologo 
 
 :exit
